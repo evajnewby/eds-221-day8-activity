@@ -1,0 +1,72 @@
+---
+title: "data_viz_eod"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## 
+```{r}
+library(tidyverse)
+library(here)
+library(lubridate)
+
+space <- read_csv(here("data", "space_launches.csv"))
+
+```
+
+```{r}
+p <- ggplot(data = space, aes(x = launch_year, y = type))+
+  geom_crossbar(xmin = 1957, xmax = 2018)
+```````
+
+```{r}
+p +
+  theme(panel.grid.major = element_line(color = "pink"),
+  plot.background = element_rect(fill = "cyan"),
+  text = element_text(size = 22, family = "mono"),
+  axis.text.x = element_text(color = "purple"),
+  axis.text.y = element_text(color = "green"),
+  panel.background = element_rect(color = "black", fill = "yellow"))+
+  labs(x = "figure it out, bro", y = "can't u read")
+
+ggsave(here("figs", "mybadfig.png"))
+  
+```
+
+# Task 2
+```{r}
+sf_ghg <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+```````
+
+```{r}
+sf_sector <- sf_ghg %>%
+  select(Emissions_mtCO2e, Sector_General)%>%
+  group_by(Sector_General)%>%
+  summarize(total_ghg = sum(Emissions_mtCO2e, na.rm = TRUE))
+```
+
+```{r}
+sf_commodity_year <- sf_ghg %>%
+  select(Calendar_Year, Commodity_Type, Emissions_mtCO2e)%>%
+  group_by(Calendar_Year, Commodity_Type) %>%
+  summarize(Emissions_mtCO2e = sum(Emissions_mtCO2e, na.rm = TRUE))
+  
+```
+
+```{r}
+sf_subset <- sf_ghg %>%
+  filter(Calendar_Year >= 2005) %>%
+  filter(str_detect(Sector_Detail2,"PG&E")) %>%
+  select(Calendar_Year, Commodity_Type, Emissions_mtCO2e)
+  
+```
+
+Task 3
+```{r}
+ggplot(data = sf_ghg, aes(x= Calendar_Year, y = Emissions_mtCO2e)) +
+  geom_point(aes(color = Sector_General))
+
+```
+
